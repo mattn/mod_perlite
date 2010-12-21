@@ -27,8 +27,13 @@ xs_init(pTHX)
 
 // XS functions to expose some basic Apache hooks
 
+#ifdef _WIN32
+_declspec(thread) static int suppress_output;
+_declspec(thread) static request_rec *thread_r;
+#else
 __thread int suppress_output;
 __thread request_rec *thread_r;
+#endif
 
 static int perlite_copy_env(void *hv, const char *key, const char *val)
 {
@@ -326,7 +331,7 @@ static apr_status_t perlite_hook_term(void *data)
 
 static int perlite_hook_init(apr_pool_t *pconf, apr_pool_t *plog, apr_pool_t *ptemp, server_rec *s)
 {
-    PERL_SYS_INIT3(&perlite_argc, &perlite_argv, &perlite_env);
+    PERL_SYS_INIT3(&perlite_argc, (char***) &perlite_argv, &perlite_env);
     apr_pool_create(&server_pool, pconf);
     apr_pool_cleanup_register(server_pool, NULL, perlite_hook_term, apr_pool_cleanup_null);
     return OK;
