@@ -2,6 +2,12 @@
 #ifndef INCLUDES_H
 #define INCLUDES_H
 
+#ifdef _WIN32
+/* avoid to re-define uid_t/gid_t in perl/CORE.h */
+#define uid_t _uid_t
+#define gid_t _gid_t
+#endif
+
 #include "httpd.h"
 #include "http_log.h"
 #include "http_core.h"
@@ -18,6 +24,13 @@
 #include "apr_errno.h"
 #include "apr_lib.h"
 #include "util_script.h"
+
+#ifdef _WIN32
+/* use perl's uid_t/gid_t. disable apr's thems. */
+#undef uid_t
+#undef gid_t
+#undef exit
+#endif
 
 #include <EXTERN.h>
 #include <perl.h>
