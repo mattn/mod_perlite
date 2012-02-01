@@ -1,7 +1,12 @@
 
 #include "mod_perlite.h"
 
+#ifdef _MSC_VER
+#define __func__ __FUNCTION__
+#define LOG(level, ...) ap_log_rerror(APLOG_MARK, APLOG_ ## level, 0, thread_r, __VA_ARGS__);
+#else
 #define LOG(level, foo...) ap_log_rerror(APLOG_MARK, APLOG_ ## level, 0, thread_r, foo);
+#endif
 
 int perlite_argc = 0;
 char *perlite_argv[] = { "", NULL };
@@ -27,7 +32,7 @@ xs_init(pTHX)
 
 // XS functions to expose some basic Apache hooks
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 _declspec(thread) static int suppress_output;
 _declspec(thread) static request_rec *thread_r;
 #else
